@@ -111,6 +111,29 @@ Reusable knowledge modules:
 * Dependency injection
 * Save systems
 
+#### Learned Skills
+
+The `skills/learned/` folder is reserved for project-specific patterns discovered over time.
+
+Use it for:
+
+* repeated project-specific conventions
+* environment-specific pitfalls
+* stable patterns that do not belong in general Unity skills
+
+Do not use it for:
+
+* generic Unity guidance
+* generic AI reasoning guidance
+* one-off notes or temporary experiments
+
+Only add a learned skill when the pattern is:
+
+* repeated
+* high-signal
+* specific to this project or workflow
+* useful enough to prevent the same mistake from happening again
+
 ---
 
 ### 📄 Templates
