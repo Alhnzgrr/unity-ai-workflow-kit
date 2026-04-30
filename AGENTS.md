@@ -217,6 +217,29 @@ Suggested use:
 
 ---
 
+## Rules Reference
+
+The repository also includes `rules/` for non-negotiable engineering constraints.
+
+Current rule set:
+
+- `rules/architecture.md`
+- `rules/dependency-injection.md`
+- `rules/async.md`
+- `rules/unity-runtime.md`
+- `rules/serialization.md`
+- `rules/performance.md`
+
+Suggested use:
+
+- load `dependency-injection` when wiring systems, views, and services
+- load `async` when building delayed or asynchronous feature flow
+- load `unity-runtime` when authoring MonoBehaviour setup and scene-facing code
+- load `serialization` before renaming inspector-backed fields
+- load `performance` for mobile-sensitive or hot-path work
+
+---
+
 ## Skills Reference
 
 | Situation | Recommended Skills |

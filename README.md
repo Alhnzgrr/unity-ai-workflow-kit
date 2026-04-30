@@ -79,6 +79,7 @@ unity-ai-workflow-kit/
   agents/
   commands/
   hooks/
+  rules/
   skills/
   templates/
   workflows/
@@ -189,6 +190,28 @@ These hooks are intended to protect:
 - Core and Environment layer boundaries
 - input architecture discipline
 - serialization migration safety
+
+### Rules
+
+The `rules/` folder contains non-negotiable engineering standards for opinionated Unity AI workflows.
+
+Current rule set:
+
+- `architecture`
+- `dependency-injection`
+- `async`
+- `unity-runtime`
+- `serialization`
+- `performance`
+
+These rules are intended to enforce:
+
+- explicit architecture boundaries
+- selected DI container discipline
+- UniTask-only async
+- no scene-search fallback setup
+- serialization safety
+- performance-aware implementation
 
 ### Commands
 
