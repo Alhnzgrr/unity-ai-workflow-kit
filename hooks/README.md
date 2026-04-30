@@ -19,6 +19,14 @@ The goal of these hooks is to catch high-cost mistakes early, especially around:
 - `check-core-boundary.sh`
   Protects `Core` and `Environment` layers from inappropriate Unity-facing dependencies.
 
+## Phase 2 Hooks
+
+- `warn-serialized-rename.sh`
+  Warns when serialized fields appear to be renamed without migration support.
+
+- `check-input-boundary.sh`
+  Protects the project from input-layer leakage into `Core` and `Environment`, and warns about unsafe input lifecycle patterns.
+
 ## Input Format
 
 These scripts are written to accept JSON on stdin, similar to tool hook payloads used by agent runtimes.
