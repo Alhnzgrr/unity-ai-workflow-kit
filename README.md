@@ -20,7 +20,7 @@ It provides **agent roles, reusable skills, templates, and workflows** that help
 * production-aware decisions
 
 This is not about blindly generating code.
-This is about **controlling AI-assisted development**.
+This is about **controlling AI-assisted Unity development**.
 
 ---
 
@@ -38,7 +38,7 @@ But without structure, that code quickly becomes:
 This kit helps you:
 
 ```text
-Use AI without losing control of your codebase.
+Use AI without losing control of your Unity project.
 ```
 
 ---
@@ -84,6 +84,8 @@ unity-ai-workflow-kit/
   workflows/
 ```
 
+---
+
 ### 🤖 Agents
 
 Role-based AI instructions:
@@ -93,7 +95,6 @@ Role-based AI instructions:
 * Code Reviewer
 * Performance Reviewer
 * Game Feel Reviewer
-* Multiplayer Reviewer
 
 ---
 
@@ -103,12 +104,12 @@ Reusable knowledge modules:
 
 * Unity clean architecture
 * Game feel
+* Mobile development
+* Hybrid casual design
 * State machines
 * Object pooling
 * Dependency injection
-* Photon Fusion
-* Mobile development
-* Hybrid casual design
+* Save systems
 
 ---
 
@@ -131,8 +132,7 @@ Step-by-step development flows:
 * GDD → TDD
 * Feature development
 * Refactoring systems
-* Multiplayer feature flow
-* Code review flow
+* Code review
 
 ---
 
@@ -183,7 +183,7 @@ Gameplay logic and mechanics.
 
 ### Views
 
-MonoBehaviours, UI, animations, input handling.
+MonoBehaviours, UI, animations, and input handling.
 
 ---
 
@@ -203,7 +203,7 @@ Always consider:
 
 ---
 
-## 🧪 Example (Coming Soon)
+## 🧪 Examples (Coming Soon)
 
 Example implementations will be added under:
 
