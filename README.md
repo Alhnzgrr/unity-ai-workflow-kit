@@ -77,6 +77,7 @@ Instead:
 unity-ai-workflow-kit/
   AGENTS.md
   agents/
+  commands/
   hooks/
   skills/
   templates/
@@ -188,6 +189,26 @@ These hooks are intended to protect:
 - Core and Environment layer boundaries
 - input architecture discipline
 - serialization migration safety
+
+### Commands
+
+The `commands/` folder contains reusable operation prompts for common AI workflows.
+
+Current command set:
+
+- `architect`
+- `plan-workflow`
+- `review-code`
+- `validate`
+- `learn`
+
+These commands are intended to help AI assistants:
+
+- design before coding
+- break large work into small execution steps
+- review code with consistent quality gates
+- validate milestone readiness
+- extract repeated project-specific patterns
 
 ### Templates
 

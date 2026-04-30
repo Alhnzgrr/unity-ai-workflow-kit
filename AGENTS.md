@@ -195,6 +195,28 @@ This reduces response quality.
 
 ---
 
+## Command Reference
+
+Use `commands/` when you want a reusable workflow entrypoint instead of a free-form prompt.
+
+Current command set:
+
+- `commands/architect.md`
+- `commands/plan-workflow.md`
+- `commands/review-code.md`
+- `commands/validate.md`
+- `commands/learn.md`
+
+Suggested use:
+
+- use `architect` before implementing non-trivial systems
+- use `plan-workflow` after design to break work into safe steps
+- use `review-code` after implementation or refactor
+- use `validate` before declaring a milestone complete
+- use `learn` when a repeated project-specific pattern appears
+
+---
+
 ## Skills Reference
 
 | Situation | Recommended Skills |
