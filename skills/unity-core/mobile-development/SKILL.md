@@ -1,142 +1,165 @@
 # Mobile Development Skill
 
 ## Purpose
-Help AI assistants make Unity games that run well and feel good
-on iOS and Android devices.
+
+Help AI assistants build Unity environments and supporting views that run reliably on iOS and Android devices, especially when simulation, debug visualization, and agent-driven interaction coexist.
 
 ## Core Idea
-Mobile is a constrained platform.
-CPU, GPU, memory, and battery are all limited.
-Every technical decision should consider mobile impact.
 
-## Performance Targets
+Mobile is a constrained runtime.
+
+In this project, mobile concerns are not only about gameplay polish. They also affect:
+
+- environment responsiveness
+- debug UI cost
+- replay visualization overhead
+- trace rendering overhead
+- battery and thermal behavior
+
+Every Unity-side feature should be evaluated for mobile impact.
+
+## Mobile Priorities
+
 Aim for:
-- 60 FPS on mid-range Android devices
-- Memory usage under 200MB where possible
-- No GC spikes during gameplay
-- Load time under 5 seconds for core gameplay
 
-Mid-range Android reference:
-- Snapdragon 665 / Mali-G52 class GPU
-- 3-4GB RAM
-- Do not optimize only for flagship devices
+- stable frame pacing on mid-range devices
+- no avoidable GC spikes during active interaction
+- lightweight debug and visualization layers
+- responsive touch interaction
+- predictable battery impact during long sessions
+
+## Environment-Specific Mobile Risks
+
+Watch for:
+
+- expensive per-step debug rendering
+- too many temporary markers or overlays
+- trace visualization generating repeated allocations
+- simulation and visualization being too tightly coupled
+- diagnostic UI rebuilding every frame
 
 ## CPU Rules
-- Avoid heavy logic in Update — use event-driven patterns
-- Cache component references in Awake or Start
-- Avoid LINQ at runtime
-- Avoid string operations outside of debug code
-- Use object pooling for frequently spawned objects
-- Throttle non-critical systems (run every 2-3 frames if acceptable)
+
+- Keep simulation logic out of heavy MonoBehaviour update chains where possible.
+- Avoid unnecessary work every frame when the environment state has not changed.
+- Cache references in `Awake` or initialization.
+- Avoid LINQ and repeated string work at runtime.
+- Throttle optional debug refresh when real-time updates are not necessary.
+- Prefer event-driven UI refresh over per-frame polling.
 
 ```csharp
 // Bad
-void Update()
+private void Update()
 {
-    var enemies = FindObjectsOfType<Enemy>(); // allocation every frame
+    _debugText.text = BuildLargeStateSummary();
 }
 
-// Good
-private Enemy[] _enemies;
-void Awake() => _enemies = FindObjectsOfType<Enemy>();
+// Better
+public void RefreshDebugView(EnvironmentSnapshot snapshot)
+{
+    _debugText.text = BuildStateSummary(snapshot);
+}
 ```
 
 ## Memory Rules
-- Compress all textures (ASTC for iOS and modern Android)
-- Use texture atlases to reduce draw calls
-- Unload unused assets explicitly with Resources.UnloadUnusedAssets
-- Avoid loading large assets synchronously on the main thread
-- Use Addressables for large or optional content
+
+- Avoid allocating new visual helpers repeatedly during stepping.
+- Pool repeated runtime markers and overlays.
+- Keep replay and trace visualizations bounded.
+- Avoid loading large optional debug assets on startup if not needed on mobile.
+- Be careful with verbose in-memory trace retention during long sessions.
 
 ## Rendering Rules
-- Keep dynamic draw calls under 100 for mid-range targets
-- Enable static batching for non-moving geometry
-- Enable dynamic batching for small moving objects
-- Avoid overdraw — especially on UI and particles
-- Use mobile-friendly shaders (Unlit or Mobile shader variants)
-- Disable HDR and post-processing unless essential
-- Limit real-time lights — prefer baked lighting
 
-## Physics Rules
-- Set Physics timestep to 0.02 or higher (never lower without reason)
-- Use layer-based collision matrix to skip unnecessary checks
-- Avoid mesh colliders on dynamic objects — use primitives
-- Throttle raycasts — do not raycast every frame unless necessary
+- Keep runtime debug visuals lightweight.
+- Avoid excessive overlay stacking and transparent UI overdraw.
+- Use shared materials and atlased assets where repeated indicators exist.
+- Disable or simplify non-essential visual diagnostics on mobile builds if needed.
+- Split static and dynamic UI canvases.
 
-## UI Rules (uGUI)
-- Split Canvas into static and dynamic layers
-- Avoid modifying layout groups every frame
-- Disable Raycast Target on non-interactive elements
-- Use TextMeshPro instead of legacy Text
-- Avoid world-space Canvas unless intentional
+## UI Rules
 
-```csharp
-// Disable raycast on decorative images
-image.raycastTarget = false;
-```
+- Separate always-visible HUD from dynamic trace/debug panels.
+- Avoid rebuilding layout-heavy panels every frame.
+- Prefer concise debug summaries over large scrolling live logs in the main view.
+- Disable `Raycast Target` on decorative UI.
+- Use TextMeshPro for readable mobile text.
 
-## Battery and Device Rules
-Always set in project startup:
+## Battery and Thermal Rules
+
+Always consider:
+
+- long-running sessions
+- repeated visualization updates
+- high-frequency redraw of debug panels
+- background processing that continues while the screen is idle
+
+Set sensible startup behavior:
 
 ```csharp
 Application.targetFrameRate = 60;
 Screen.sleepTimeout = SleepTimeout.SystemSetting;
 ```
 
-- Do not run at uncapped frame rate
-- Avoid continuous heavy computation when the game is idle
-- Release audio resources when the app is backgrounded
+If the environment is mostly static between steps, avoid pretending it is a full real-time scene.
 
 ## Touch Input Rules
-- Touch targets should be at least 48x48 dp
-- Drag input should feel immediate — avoid input buffering
-- Release actions should have clear visual confirmation
-- Support both portrait and landscape if required early — retrofitting is expensive
-- Test on real devices — simulator touch behavior differs
+
+- Touch targets should be comfortably sized.
+- Step, reset, and inspect actions should feel immediate.
+- If selecting targets on a board/grid, visual confirmation must be clear.
+- Drag or tap interactions should not depend on tiny hit areas.
+- Human mobile input and AI-driven actions should use the same environment-facing API.
+
+## Debug and Evaluation Guidance
+
+On mobile, debug features must be intentional.
+
+Prefer:
+
+- compact state summaries
+- optional expandable debug panels
+- pooled debug markers
+- togglable replay overlays
+
+Avoid:
+
+- always-on verbose trace panels
+- unbounded scrolling logs in scene
+- per-frame rebuilding of complex diagnostic UI
 
 ## Loading and Initialization
-- Show a loading screen before heavy initialization
-- Pre-warm object pools during load, not during gameplay
-- Use async loading for scenes (LoadSceneAsync)
-- Avoid synchronous asset loads after initial load
 
-```csharp
-// Async scene load
-IEnumerator LoadGameScene()
-{
-    var op = SceneManager.LoadSceneAsync("Game");
-    op.allowSceneActivation = false;
-
-    while (op.progress < 0.9f)
-    {
-        UpdateLoadingBar(op.progress);
-        yield return null;
-    }
-
-    op.allowSceneActivation = true;
-}
-```
+- Pre-warm required pools before active interaction starts.
+- Load heavy optional visualization assets lazily when possible.
+- Separate environment initialization from optional debug tool initialization.
+- Keep the first interactive state fast and predictable.
 
 ## Profiling Checklist
-Before shipping a build, profile with:
-- Unity Profiler (CPU and memory)
-- Unity Memory Profiler (texture and asset memory)
-- Frame Debugger (draw call audit)
-- Real device testing on a mid-range Android
+
+Before treating a mobile flow as acceptable, check:
+
+- Are there allocations in active step/render paths?
+- Are repeated markers pooled?
+- Is debug UI updating only when needed?
+- Is frame rate capped?
+- Are long sessions causing thermal or battery issues?
+- Does the environment remain usable when optional debug layers are disabled?
 
 ## Common Mistakes
-- Optimizing only on high-end test devices
-- Leaving FindObjectsOfType calls in Update
-- Uncapped frame rate draining battery
-- Uncompressed textures shipped in final build
-- Canvas rebuilding every frame due to dynamic content on static canvas
-- Forgetting to disable Raycast Target on decorative UI elements
+
+- treating mobile as a smaller desktop build
+- updating debug text and panels every frame
+- leaving replay or trace overlays always active
+- tying simulation updates to heavy visual refresh
+- using too many temporary scene objects during step feedback
 
 ## AI Review Guidance
-When reviewing mobile features, check:
-- Are there allocations in hot paths?
-- Is frame rate capped?
-- Are textures compressed?
-- Is the Canvas split correctly?
-- Are object pools used for frequent spawns?
-- Has this been tested on a mid-range device, not just the editor?
+
+When reviewing mobile-oriented Unity features, check:
+
+- Is simulation separated from presentation enough to scale down visuals on mobile?
+- Are repeated visual helpers pooled?
+- Is debug rendering bounded and optional?
+- Does the mobile UX stay responsive even with environment feedback enabled?
+- Can the environment still function if diagnostics are reduced?

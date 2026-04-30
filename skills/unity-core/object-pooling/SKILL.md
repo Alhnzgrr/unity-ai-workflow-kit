@@ -1,30 +1,50 @@
 # Object Pooling Skill
 
 ## Purpose
-Help AI assistants implement object pooling correctly in Unity
-to avoid runtime allocations and garbage collection spikes on mobile.
+
+Help AI assistants apply object pooling correctly in Unity projects that use rule-driven environments, debug visualization, replay tooling, and repeated runtime markers.
 
 ## Core Idea
-Never Instantiate or Destroy frequently spawned objects at runtime.
-Create them once, reuse them, return them when done.
+
+Do not repeatedly `Instantiate` and `Destroy` short-lived scene objects during active simulation if the same object type can be reused safely.
+
+Pooling is especially useful when Unity is acting as a host and visualization layer for an environment that emits many repeated visual artifacts.
 
 ## When To Use Pooling
+
 Use pooling when:
-- Objects are spawned and destroyed repeatedly (bullets, particles, enemies, coins)
-- The feature runs on mobile and allocation spikes are a risk
-- Profiler shows GC alloc in a hot path
+
+- objects are spawned and removed repeatedly
+- runtime debug markers appear often
+- legal move indicators are refreshed frequently
+- replay visualizers create many temporary objects
+- trace visualization creates repeated short-lived UI or world objects
+- mobile performance or GC spikes matter
 
 Do not use pooling when:
-- Objects are spawned once or very rarely
-- The object has complex teardown that makes reuse impractical
-- The added complexity is not justified by the feature size
+
+- objects are spawned once or very rarely
+- teardown cost makes safe reuse difficult
+- the object lifecycle is too complex to reset reliably
+- the added complexity is not justified by the usage frequency
+
+## Typical Environment Use Cases
+
+Good pooling candidates in this project:
+
+- action target highlights
+- grid or board indicators
+- step result popups
+- replay path markers
+- debug arrows and gizmo-like runtime helpers
+- transient VFX tied to validation or transition feedback
 
 ## Core Pattern
 
 ```csharp
-public class ObjectPool<T> where T : MonoBehaviour
+public sealed class ObjectPool<T> where T : MonoBehaviour
 {
-    private readonly Queue<T> _pool = new Queue<T>();
+    private readonly Queue<T> _pool = new();
     private readonly T _prefab;
     private readonly Transform _parent;
 
@@ -32,62 +52,69 @@ public class ObjectPool<T> where T : MonoBehaviour
     {
         _prefab = prefab;
         _parent = parent;
-        for (int i = 0; i < initialSize; i++)
+
+        for (int index = 0; index < initialSize; index++)
+        {
             ReturnToPool(CreateNew());
+        }
     }
 
     public T Get()
     {
-        var obj = _pool.Count > 0 ? _pool.Dequeue() : CreateNew();
-        obj.gameObject.SetActive(true);
-        return obj;
+        T instance = _pool.Count > 0 ? _pool.Dequeue() : CreateNew();
+        instance.gameObject.SetActive(true);
+        return instance;
     }
 
-    public void ReturnToPool(T obj)
+    public void ReturnToPool(T instance)
     {
-        obj.gameObject.SetActive(false);
-        _pool.Enqueue(obj);
+        instance.gameObject.SetActive(false);
+        _pool.Enqueue(instance);
     }
 
-    private T CreateNew() =>
-        Object.Instantiate(_prefab, _parent);
+    private T CreateNew()
+    {
+        return Object.Instantiate(_prefab, _parent);
+    }
 }
 ```
 
-## Unity Built-in Pool (Unity 2021+)
-Unity provides ObjectPool<T> in UnityEngine.Pool.
-Prefer this over custom implementations unless you need specific behavior.
+## Unity Built-In Pool
+
+Unity provides `ObjectPool<T>` in `UnityEngine.Pool`.
+
+Prefer the built-in pool unless the project needs custom lifecycle or bookkeeping behavior.
 
 ```csharp
 using UnityEngine.Pool;
 
-private IObjectPool<Bullet> _bulletPool;
+private IObjectPool<DebugMarkerView> _markerPool;
 
-void Awake()
+private void Awake()
 {
-    _bulletPool = new ObjectPool<Bullet>(
-        createFunc: () => Instantiate(bulletPrefab),
-        actionOnGet: b => b.gameObject.SetActive(true),
-        actionOnRelease: b => b.gameObject.SetActive(false),
-        actionOnDestroy: b => Destroy(b.gameObject),
-        defaultCapacity: 20,
-        maxSize: 100
+    _markerPool = new ObjectPool<DebugMarkerView>(
+        createFunc: () => Instantiate(_markerPrefab, _markerRoot),
+        actionOnGet: marker => marker.gameObject.SetActive(true),
+        actionOnRelease: marker => marker.gameObject.SetActive(false),
+        actionOnDestroy: marker => Destroy(marker.gameObject),
+        defaultCapacity: 32,
+        maxSize: 128
     );
 }
 ```
 
-## Rules
+## Environment-Oriented Rules
 
-- Reset runtime state on Get
-- Clean up subscriptions, timers, particles, and ownership on ReturnToPool
-- Never return the same object twice
-- Disable, do not destroy, when returning
-- Pre-warm pools at scene load, not during gameplay
-- Keep pool parent transform for scene organization
+- Reset runtime state on `Get`.
+- Clear previous references, target bindings, labels, and visuals on `ReturnToPool`.
+- Never return the same object twice.
+- Pre-warm pools during setup or loading, not during active stepping.
+- Keep pooled runtime helpers under a clear scene parent for inspection.
+- Pool views and markers, not the authoritative environment state itself.
 
 ## Lifecycle Pattern
 
-Use separate lifecycle methods when needed:
+When pooled objects need explicit reset hooks, use a small lifecycle contract:
 
 ```csharp
 public interface IPoolable
@@ -97,47 +124,59 @@ public interface IPoolable
 }
 ```
 
-- `OnGetFromPool`: reset gameplay state
-- `OnReturnToPool`: stop particles, cancel timers, unsubscribe events
+Typical responsibilities:
 
-## Reset Pattern
+- `OnGetFromPool`: reset local visuals, cached labels, temporary animation state
+- `OnReturnToPool`: stop effects, cancel local timers, clear references, unsubscribe temporary callbacks
 
-Objects should reset themselves when retrieved:
+## Example Reset Pattern
 
 ```csharp
-public class Bullet : MonoBehaviour
+public sealed class DebugMarkerView : MonoBehaviour
 {
+    [SerializeField] private TMPro.TextMeshPro _label;
+
     public void OnGetFromPool()
     {
-        _velocity = Vector3.zero;
-        _isActive = true;
-        _lifetime = 0f;
+        transform.localScale = Vector3.one;
+        _label.text = string.Empty;
+    }
+
+    public void OnReturnToPool()
+    {
+        _label.text = string.Empty;
     }
 }
 ```
 
 ## Safety Rules
 
-- Do not pool objects that still have active async operations unless cancellation is handled
-- Do not pool objects with event subscriptions unless they unsubscribe on release
-- Do not pool objects with network ownership unless explicitly supported
+- Do not pool objects that still have active async work unless cancellation/reset is handled.
+- Do not pool objects with active subscriptions unless release cleanup is guaranteed.
+- Do not pool objects that still expose stale environment references.
+- Do not treat pooled visual objects as source-of-truth state containers.
 
-## Mobile Considerations
-- Pre-warm all pools during loading screen
-- Set maxSize to avoid unbounded memory growth
-- Avoid pools for objects with heavy textures loaded per instance
-- Profile with Unity Memory Profiler after implementing
+## Mobile and Runtime Considerations
+
+- Pre-warm pools before heavy interaction starts.
+- Set sensible caps to avoid unbounded memory growth.
+- Avoid runtime fallback instantiation in hot loops if the pool is exhausted often.
+- Profile pooled debug and visualization systems on device if they stay enabled in runtime builds.
 
 ## Common Mistakes
-- Instantiating inside Update as fallback when pool is empty
-- Forgetting to return objects that go off-screen
-- Not resetting state before reuse
-- Creating pools too small and hitting Instantiate at runtime anyway
+
+- instantiating new markers every step instead of reusing them
+- forgetting to clear old labels or target bindings
+- pooling stateful objects without reset hooks
+- treating pooled views as authoritative simulation state
+- making the pool too small and hitting runtime instantiation repeatedly
 
 ## AI Review Guidance
 
 When reviewing pooled systems, check:
-- Is the pool pre-warmed before gameplay starts?
-- Is object state fully reset on retrieval?
-- Is there a guaranteed return path for every Get call?
-- Is pool size appropriate for the expected spawn rate?
+
+- Is pooling used for frequently repeated scene objects?
+- Is pooled object state fully reset on retrieval?
+- Are environment references cleared on release?
+- Is there a guaranteed return path for every acquired object?
+- Is pooling applied to presentation/helpers rather than core authoritative state?
