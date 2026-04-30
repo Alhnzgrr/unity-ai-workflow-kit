@@ -1,192 +1,130 @@
-# AGENTS.md
-
-This file defines the default behavior for AI coding assistants working on Unity projects that use this workflow kit.
-
-## Mission
-
-Help build Unity games with clean architecture, strong gameplay feel, and maintainable code.
-
-AI assistants should support development, not take architectural control away from the developer.
-
-## Development Philosophy
-
-Fast when needed.  
-Clean by default.  
-Production-minded when it matters.
-
-Do not overengineer early features, but never write throwaway or messy code.
-
-Prefer a simple clean solution over a complex perfect one.
-
-Write code as if the current prototype may later evolve into a real production project.
-
-## Unity Architecture Rules
-
-### MonoBehaviour Usage
-
-MonoBehaviours should be thin.
-
-Use MonoBehaviours mainly for:
-
-- Unity lifecycle methods
-- Scene references
-- Input adapters
-- Animation triggers
-- View updates
-- Collision callbacks
-- Inspector configuration
-
-Avoid putting large gameplay rules directly inside MonoBehaviours.
-
-### Gameplay Logic
-
-Gameplay logic should live in plain C# classes when possible.
-
-Good places for logic:
-
-```text
-Core/
-Systems/
-Services/
-Rules/
-StateMachines/
-```
-
-Avoid making every feature depend directly on Unity scene objects.
-
-### Separation of Concerns
-
-Keep responsibilities focused.
-
-A class should not handle:
-
-- input
-- movement
-- scoring
-- UI
-- saving
-- audio
-- spawning
-
-all at the same time.
-
-If a class grows beyond a few clear responsibilities, split it.
-
-### SOLID / OOP
-
-Follow SOLID principles where they improve clarity and maintainability.
-
-Use interfaces when they create useful boundaries, not just because they look clean.
-
-Avoid abstraction for abstraction's sake.
-
-### Dependency Management
-
-Prefer explicit dependencies.
-
-If a project uses Dependency Injection, follow the existing DI approach.
-
-Zenject may be used as a reference, but the architecture should stay DI-framework independent.
-
-Avoid hidden dependencies such as:
-
-- global mutable state
-- excessive singletons
-- `FindObjectOfType` in gameplay logic
-- hardcoded scene lookups in systems
-
-## Performance Guidelines
-
-Be careful in hot paths:
-
-- `Update`
-- `FixedUpdate`
-- `LateUpdate`
-- frequent input handling
-- physics queries
-- spawning/despawning
-- UI refresh loops
-
-Avoid unnecessary allocations in hot paths:
-
-- LINQ
-- repeated string creation
-- new collections
-- boxing
-- frequent Instantiate/Destroy
-- repeated GetComponent calls without caching
-
-Use object pooling where it improves performance and clarity.
-
-## Mobile Awareness
-
-For mobile or hybrid casual games:
-
-- Prioritize clear input
-- Keep sessions readable and responsive
-- Avoid heavy per-frame logic
-- Watch draw calls, overdraw, and UI rebuilds
-- Make feedback immediate
-- Keep the core loop understandable within seconds
-
-## Game Feel Rules
-
-A feature is not done only because it works.
-
-Consider:
-
-- timing
-- feedback
-- anticipation
-- impact
-- camera response
-- animation
-- sound
-- haptics
-- UI clarity
-
-Always mention missing game-feel opportunities when reviewing gameplay features.
-
-## AI Code Output Rules
-
-When writing code:
-
-1. Explain the intent briefly.
-2. Keep changes scoped.
-3. Respect the existing project style.
-4. Avoid rewriting unrelated systems.
-5. Mention assumptions.
-6. Mention Unity lifecycle implications.
-7. Mention possible compile risks.
-8. Suggest tests or manual validation steps.
-
-## Review Rules
-
-When reviewing code, check:
-
-- correctness
-- architecture
-- class responsibility
-- Unity lifecycle usage
-- performance
-- memory allocations
-- testability
-- game-feel implications
-- mobile risks
-- multiplayer authority risks, if applicable
-
-## Multiplayer Rules
-
-For Photon Fusion or similar networking:
-
-- Never change networked state without authority checks.
-- Separate local prediction from authoritative state.
-- Be explicit about RPC direction and ownership.
-- Avoid mixing UI, input, and network state in one class.
-- Consider host migration, disconnects, and late joiners where relevant.
-
-## Final Rule
-
-Do not blindly generate more code.
-
-If the design is unclear, first produce a small plan and identify risks.
+Unity AI Workflow Kit — AGENTS.md
+Overview
+This file defines the agent roles and coordination flow for AI-assisted Unity development.
+Use this file as the primary context for your AI assistant.
+---
+Agent Roster
+Agent	File	Responsibility
+Unity Architect	agents/unity-architect.md	System design, class boundaries, data flow
+Gameplay Programmer	agents/gameplay-programmer.md	Feature implementation
+Code Reviewer	agents/code-reviewer.md	Code quality, architecture, correctness
+Performance Reviewer	agents/performance-reviewer.md	Allocations, draw calls, mobile performance
+Game Feel Reviewer	agents/game-feel-reviewer.md	Feedback, timing, player experience
+---
+When To Use Which Agent
+Starting a new feature
+→ Start with Unity Architect
+Use when: You have an idea but no technical plan yet.
+Ask for: System design, class list, data flow, risks.
+Implementing a designed feature
+→ Use Gameplay Programmer
+Use when: You have a technical plan and need working code.
+Ask for: Implementation, tuning values, feedback hooks.
+Reviewing existing or generated code
+→ Use Code Reviewer
+Use when: Code is written and needs quality check.
+Ask for: Correctness, architecture, lifecycle safety.
+Reviewing for mobile performance
+→ Use Performance Reviewer
+Use when: Feature is implemented and you want to check mobile impact.
+Ask for: Allocation check, draw call audit, mobile-specific risks.
+Reviewing for player experience
+→ Use Game Feel Reviewer
+Use when: Feature works and you want to evaluate how it feels.
+Ask for: Feedback gaps, timing issues, haptic and audio opportunities.
+---
+Standard Feature Flow
+Use this flow for any non-trivial feature:
+DESIGN  
+Agent: Unity Architect  
+Input: Feature description in plain language  
+Output: Class list, responsibilities, data flow, risks
+IMPLEMENT  
+Agent: Gameplay Programmer  
+Input: Architect output + feature description  
+Output: Working code, Unity setup steps, tuning values
+REVIEW  
+Agent: Code Reviewer  
+Input: Implemented code  
+Output: Must Fix / Should Improve / Optional
+PERFORMANCE CHECK  
+Agent: Performance Reviewer  
+Input: Reviewed code  
+Output: Critical issues / Watch list / Mobile checklist
+FEEL CHECK  
+Agent: Game Feel Reviewer  
+Input: Working feature in context  
+Output: Missing feedback / Polish opportunities
+---
+Quick Flow (Small Features)
+For small, low-risk features skip Design and go directly to implementation:
+IMPLEMENT  
+Agent: Gameplay Programmer
+REVIEW  
+Agent: Code Reviewer
+FEEL CHECK  
+Agent: Game Feel Reviewer
+Use Quick Flow when:
+The feature touches only one system
+No new classes are needed
+Risk of architectural impact is low
+---
+Refactor Flow
+Use when improving existing code without adding new behavior:
+REVIEW  
+Agent: Code Reviewer  
+Goal: Identify what needs to change and why
+DESIGN (if structural changes needed)  
+Agent: Unity Architect  
+Goal: Plan the refactored structure
+IMPLEMENT  
+Agent: Gameplay Programmer  
+Goal: Apply the refactor cleanly
+---
+Example Prompts
+Starting a feature
+Use agents/unity-architect.md.  
+Act as Unity Architect.  
+Design the system for this feature:  
+[describe your feature here]
+Implementing a feature
+Use agents/gameplay-programmer.md.  
+Act as Gameplay Programmer.  
+Here is the technical plan:  
+[paste architect output]  
+Implement this feature.
+Reviewing code
+Use agents/code-reviewer.md.  
+Act as Code Reviewer.  
+Review this code:  
+[paste code]
+Full pipeline prompt
+Use agents/unity-architect.md, agents/gameplay-programmer.md, agents/code-reviewer.md.  
+Step 1: Act as Unity Architect. Design this feature: [description]  
+Step 2: Act as Gameplay Programmer. Implement the design from Step 1.  
+Step 3: Act as Code Reviewer. Review the code from Step 2.
+---
+Agent Combination Rules
+Situation	Agents to combine
+Mobile-critical system	Performance Reviewer + Game Feel Reviewer
+Core gameplay mechanic	Architect + Gameplay Programmer + Game Feel Reviewer
+Legacy code cleanup	Code Reviewer + Architect
+---
+Context Management
+AI tools have limited context windows.  
+Load only what you need per session:
+For design sessions: `AGENTS.md` + `agents/unity-architect.md` + relevant skill
+For implementation: `AGENTS.md` + `agents/gameplay-programmer.md` + relevant skill
+For review: `AGENTS.md` + `agents/code-reviewer.md`
+For full pipeline: Load agents one at a time per step
+Do not load all agents and all skills at once.  
+This reduces response quality.
+---
+Skills Reference
+Feature Type	Recommended Skills
+New system	skills/unity-clean-architecture/SKILL.md
+Gameplay mechanic	skills/game-feel/SKILL.md + skills/state-machine/SKILL.md
+Object management	skills/object-pooling/SKILL.md
+Dependency management	skills/dependency-injection/SKILL.md
+Mobile feature	skills/mobile-development/SKILL.md
+Hybrid casual mechanic	skills/hybrid-casual/SKILL.md
