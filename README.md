@@ -1,46 +1,79 @@
-# Unity AI Workflow Kit
+# 🚀 Unity AI Workflow Kit
 
 Build Unity games with AI without losing architectural control.
 
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Unity](https://img.shields.io/badge/Unity-Workflow-black)
+![AI](https://img.shields.io/badge/AI-Assisted-purple)
+
+---
+
+## 🧠 What Is This?
+
 **Unity AI Workflow Kit** is a practical workflow system for Unity developers using AI coding tools like Codex, Claude Code, Cursor, GitHub Copilot, or similar assistants.
 
-It provides agent roles, reusable skills, templates, and workflows that help AI tools understand how to build Unity projects with clean structure, maintainable code, and strong gameplay focus.
+It provides **agent roles, reusable skills, templates, and workflows** that help AI tools generate Unity code with:
 
-## Philosophy
+* clean architecture
+* maintainable structure
+* strong gameplay focus
+* production-aware decisions
 
-Fast when needed.  
-Clean by default.  
+This is not about blindly generating code.
+This is about **controlling AI-assisted development**.
+
+---
+
+## 🎯 Why This Exists
+
+Most AI tools can generate code.
+
+But without structure, that code quickly becomes:
+
+* bloated MonoBehaviours
+* poor performance patterns
+* hard-to-maintain systems
+* inconsistent architecture
+
+This kit helps you:
+
+```text
+Use AI without losing control of your codebase.
+```
+
+---
+
+## ⚖️ Philosophy
+
+Fast when needed.
+Clean by default.
 Production-minded when it matters.
 
-This kit is not about generating messy prototypes as quickly as possible. It is about using AI as a disciplined development partner.
+This kit does **not** encourage messy prototypes.
 
-Early versions of a feature should stay simple, but they should not become spaghetti code. The goal is to move quickly while preserving a structure that can evolve.
+Instead:
 
-## Core Principles
+* Keep early implementations simple
+* Avoid unnecessary abstraction
+* Maintain clean structure from the start
+* Write code that can evolve into production
 
-- Keep MonoBehaviours thin.
-- Put gameplay rules in plain C# classes whenever possible.
-- Follow OOP and SOLID principles where they add clarity.
-- Avoid unnecessary abstraction during early iteration.
-- Prefer simple clean solutions over complex perfect ones.
-- Write code as if the prototype may later become production code.
-- Review AI-generated code before trusting it.
-- Make gameplay feel good, not just technically correct.
+> Do not overengineer early features,
+> but never write code you would be ashamed to ship.
 
-## Who Is This For?
+---
 
-This kit is designed mainly for:
+## 👤 Who Is This For?
 
-- Solo Unity developers
-- Small indie teams
-- Mobile game developers
-- Hybrid casual developers
-- Steam indie developers
-- AI-assisted game developers
+* Solo Unity developers
+* Indie teams
+* Mobile & hybrid casual developers
+* Steam indie developers
+* Developers using AI tools in their workflow
 
-The default focus is Unity development with strong mobile and gameplay-system awareness, but the structure can be adapted to almost any Unity project.
+---
 
-## What Is Included?
+## 📦 What’s Inside?
 
 ```text
 unity-ai-workflow-kit/
@@ -51,47 +84,81 @@ unity-ai-workflow-kit/
   workflows/
 ```
 
-### Agents
+### 🤖 Agents
 
-Role-based AI instructions such as:
+Role-based AI instructions:
 
-- Unity Architect
-- Gameplay Programmer
-- Code Reviewer
+* Unity Architect
+* Gameplay Programmer
+* Code Reviewer
+* Performance Reviewer
+* Game Feel Reviewer
+* Multiplayer Reviewer
 
-### Skills
+---
 
-Reusable domain knowledge such as:
+### 🧩 Skills
 
-- Unity clean architecture
-- Game feel
-- State machines
-- Object pooling
-- Dependency injection
-- Photon Fusion
+Reusable knowledge modules:
 
-### Templates
+* Unity clean architecture
+* Game feel
+* State machines
+* Object pooling
+* Dependency injection
+* Photon Fusion
+* Mobile development
+* Hybrid casual design
 
-Documents that help convert ideas into implementation-ready plans:
+---
 
-- GDD
-- TDD
-- Feature specs
-- Code review checklists
+### 📄 Templates
 
-### Workflows
+Structure your ideas before coding:
 
-Step-by-step AI-assisted development flows:
+* Game Design Document (GDD)
+* Technical Design Document (TDD)
+* Feature specification
+* Code review checklist
 
-- Idea to GDD
-- GDD to TDD
-- Feature development
-- Refactoring
-- Code review
+---
 
-## Recommended Unity Structure
+### 🔄 Workflows
 
-This kit encourages a layered Unity project structure:
+Step-by-step development flows:
+
+* Idea → GDD
+* GDD → TDD
+* Feature development
+* Refactoring systems
+* Multiplayer feature flow
+* Code review flow
+
+---
+
+## ⚡ Quick Start
+
+1. Copy `AGENTS.md` into your Unity project or AI context
+2. Pick relevant agents from `/agents`
+3. Use skills from `/skills` based on your feature
+4. Define your feature using templates
+5. Ask your AI assistant to follow the rules
+
+### Example Prompt
+
+```text
+Use the rules in AGENTS.md.
+
+Act as Unity Architect.
+
+Create a technical plan for this feature:
+
+Player drags a ball, aims it with a trajectory line, and releases it to hit a target.
+```
+
+---
+
+## 🏗 Recommended Unity Structure
 
 ```text
 Assets/
@@ -108,58 +175,53 @@ Assets/
 
 ### Core
 
-Pure C# models, enums, value objects, rules, and messages.
+Pure C# logic, rules, and data.
 
 ### Systems
 
-Gameplay logic and application logic. Prefer plain C# classes.
+Gameplay logic and mechanics.
 
 ### Views
 
-MonoBehaviours, input adapters, animation triggers, UI bindings, and Unity scene integration.
+MonoBehaviours, UI, animations, input handling.
 
-## How To Use
+---
 
-Copy the relevant files into your Unity project or AI tool context.
+## 🎮 Game Feel Matters
 
-For example:
+A feature is not complete just because it works.
+
+Always consider:
+
+* responsiveness
+* feedback
+* timing
+* clarity
+* animation
+* sound
+* haptics
+
+---
+
+## 🧪 Example (Coming Soon)
+
+Example implementations will be added under:
 
 ```text
-AGENTS.md
-agents/unity-architect.md
-agents/gameplay-programmer.md
-agents/code-reviewer.md
-skills/unity-clean-architecture/SKILL.md
-templates/GDD_TEMPLATE.md
-templates/TDD_TEMPLATE.md
-workflows/feature-development.md
+examples/
 ```
 
-Then ask your AI tool to follow the rules in `AGENTS.md` before generating or changing code.
+---
 
-## Example Prompt
+## ❌ What This Is NOT
 
-```text
-Use the rules in AGENTS.md.
+* Not a Unity plugin
+* Not a game framework
+* Not a one-click game generator
+* Not a replacement for real Unity knowledge
 
-Act as the Unity Architect first.
-Review this feature idea and create a simple technical plan.
+---
 
-Feature:
-The player can drag a ball, aim it with a trajectory line, release it, and bounce it into a target.
-```
+## 📜 License
 
-## What This Kit Is Not
-
-This is not:
-
-- A Unity package
-- A framework
-- A replacement for Unity knowledge
-- A fully automated game generator
-
-It is a practical workflow kit for controlling AI-assisted Unity development.
-
-## License
-
-MIT
+MIT License
