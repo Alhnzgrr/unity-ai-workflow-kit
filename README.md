@@ -79,6 +79,7 @@ unity-ai-workflow-kit/
   agents/
   commands/
   hooks/
+  runtime/
   rules/
   skills/
   templates/
@@ -224,6 +225,9 @@ Current command set:
 - `review-code`
 - `validate`
 - `learn`
+- `orchestrate`
+- `build-feature`
+- `catch-up`
 
 These commands are intended to help AI assistants:
 
@@ -232,6 +236,8 @@ These commands are intended to help AI assistants:
 - review code with consistent quality gates
 - validate milestone readiness
 - extract repeated project-specific patterns
+- coordinate multi-phase feature workflows
+- resume partially completed tasks cleanly
 
 ### Templates
 
@@ -239,6 +245,27 @@ Structure your ideas before coding:
 
 - Game Design Document (GDD)
 - Technical Design Document (TDD)
+
+The `templates/` folder also contains handoff templates for agent-to-agent workflow:
+
+- architecture handoff
+- implementation handoff
+- setup handoff
+- test handoff
+- review handoff
+- validation report
+
+### Runtime
+
+The `runtime/` folder is reserved for workflow artifacts produced during multi-phase work:
+
+- `tasks/`
+- `handoffs/`
+- `reviews/`
+- `validations/`
+- `logs/`
+
+This makes the kit ready for orchestration-oriented workflows instead of one-shot prompting only.
 
 ### Workflows
 

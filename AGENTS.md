@@ -261,6 +261,9 @@ Current command set:
 - `commands/review-code.md`
 - `commands/validate.md`
 - `commands/learn.md`
+- `commands/orchestrate.md`
+- `commands/build-feature.md`
+- `commands/catch-up.md`
 
 Suggested use:
 
@@ -269,6 +272,34 @@ Suggested use:
 - use `review-code` after implementation or refactor
 - use `validate` before declaring a milestone complete
 - use `learn` when a repeated project-specific pattern appears
+- use `orchestrate` for multi-phase feature coordination
+- use `build-feature` for end-to-end feature flow
+- use `catch-up` when resuming a task or reconstructing workflow state
+
+---
+
+## Handoff And Artifacts
+
+The repository also supports handoff-driven workflow progression.
+
+Handoff templates:
+
+- `templates/architecture-handoff.md`
+- `templates/implementation-handoff.md`
+- `templates/setup-handoff.md`
+- `templates/test-handoff.md`
+- `templates/review-handoff.md`
+- `templates/validation-report.md`
+
+Runtime artifact folders:
+
+- `runtime/tasks/`
+- `runtime/handoffs/`
+- `runtime/reviews/`
+- `runtime/validations/`
+- `runtime/logs/`
+
+Use these when a feature should move through multiple agents with explicit phase outputs and review gates.
 
 ---
 
