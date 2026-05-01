@@ -85,6 +85,7 @@ When applicable, write or recommend artifacts under:
 ## Related Files
 
 - `AGENTS.md`
+- `rules/workflow-orchestration.md`
 - `templates/architecture-handoff.md`
 - `templates/implementation-handoff.md`
 - `templates/setup-handoff.md`

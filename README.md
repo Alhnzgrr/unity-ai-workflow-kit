@@ -204,6 +204,7 @@ Current rule set:
 - `unity-runtime`
 - `serialization`
 - `performance`
+- `workflow-orchestration`
 
 These rules are intended to enforce:
 
@@ -213,6 +214,7 @@ These rules are intended to enforce:
 - no scene-search fallback setup
 - serialization safety
 - performance-aware implementation
+- phase-based workflow discipline
 
 ### Commands
 

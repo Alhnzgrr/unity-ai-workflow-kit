@@ -14,6 +14,7 @@ They are intended to act as project rules that keep architecture, runtime behavi
 - `unity-runtime.md`
 - `serialization.md`
 - `performance.md`
+- `workflow-orchestration.md`
 
 ## How To Use
 
@@ -26,6 +27,7 @@ Examples:
 - scene object setup or runtime MonoBehaviour work: `unity-runtime.md`
 - inspector field rename or prefab-sensitive change: `serialization.md`
 - optimization or mobile-sensitive work: `performance.md`
+- multi-phase or multi-agent work: `workflow-orchestration.md`
 
 ## Rule Intent
 
@@ -39,3 +41,4 @@ They enforce:
 - strict editor/runtime separation
 - serialization safety
 - production-minded performance discipline
+- explicit workflow gates and phase discipline

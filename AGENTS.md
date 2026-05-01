@@ -315,6 +315,7 @@ Current rule set:
 - `rules/unity-runtime.md`
 - `rules/serialization.md`
 - `rules/performance.md`
+- `rules/workflow-orchestration.md`
 
 Suggested use:
 
@@ -323,6 +324,7 @@ Suggested use:
 - load `unity-runtime` when authoring MonoBehaviour setup and scene-facing code
 - load `serialization` before renaming inspector-backed fields
 - load `performance` for mobile-sensitive or hot-path work
+- load `workflow-orchestration` for medium or large tasks and when phase discipline matters
 
 ---
 
