@@ -14,6 +14,8 @@ Use this file as the primary context for your AI assistant.
 |---|---|---|
 | Unity Architect | agents/unity-architect.md | System design, class boundaries, data flow |
 | Gameplay Programmer | agents/gameplay-programmer.md | Feature implementation |
+| Tester | agents/tester.md | Test planning, coverage, validation flow |
+| Unity Setup | agents/unity-setup.md | Scene, prefab, asset, and wiring setup |
 | Code Reviewer | agents/code-reviewer.md | Code quality, architecture, correctness |
 | Performance Reviewer | agents/performance-reviewer.md | Allocations, draw calls, mobile performance |
 | Game Feel Reviewer | agents/game-feel-reviewer.md | Feedback, timing, interaction clarity |
@@ -45,6 +47,22 @@ Use **Code Reviewer**.
 Use when: code is written and needs quality check.
 
 Ask for: correctness, architecture, lifecycle safety, test gaps.
+
+### Planning or reviewing tests
+
+Use **Tester**.
+
+Use when: you need test coverage, validation scope, edge-case review, or manual smoke test steps.
+
+Ask for: EditMode test targets, integration risks, edge cases, and validation coverage gaps.
+
+### Preparing scene, prefab, or asset setup
+
+Use **Unity Setup**.
+
+Use when: a feature needs scene wiring, prefab references, ScriptableObject setup, or explicit Unity Editor steps.
+
+Ask for: scene hierarchy, required components, reference assignments, installer wiring, and smoke test setup.
 
 ### Reviewing for mobile performance
 
@@ -78,10 +96,20 @@ Agent: Gameplay Programmer
 Input: architect output + feature description  
 Output: working code, Unity setup steps, tuning values
 
+SETUP  
+Agent: Unity Setup  
+Input: implemented code + architecture notes  
+Output: scene/prefab/asset wiring steps, required references, Unity Editor checklist
+
 REVIEW  
 Agent: Code Reviewer  
 Input: implemented code  
 Output: Must Fix / Should Improve / Optional
+
+TEST CHECK  
+Agent: Tester  
+Input: implemented code or feature scope  
+Output: automated test targets, manual validation steps, coverage gaps
 
 PERFORMANCE CHECK  
 Agent: Performance Reviewer  
@@ -104,6 +132,9 @@ Agent: Gameplay Programmer
 
 REVIEW  
 Agent: Code Reviewer
+
+TEST CHECK  
+Agent: Tester
 
 FEEL CHECK  
 Agent: Game Feel Reviewer
@@ -132,6 +163,10 @@ IMPLEMENT
 Agent: Gameplay Programmer  
 Goal: apply the refactor cleanly
 
+TEST CHECK  
+Agent: Tester  
+Goal: confirm regression-sensitive areas and missing validation
+
 ---
 
 ## Example Prompts
@@ -158,12 +193,28 @@ Act as Code Reviewer.
 Review this code:  
 [paste code]
 
+### Planning tests
+
+Use `agents/tester.md`.  
+Act as Tester.  
+Plan the tests and validation steps for this feature:  
+[paste scope or code]
+
+### Preparing Unity setup
+
+Use `agents/unity-setup.md`.  
+Act as Unity Setup.  
+List the scene, prefab, asset, and wiring setup needed for this feature:  
+[paste plan or code]
+
 ### Full pipeline prompt
 
-Use `agents/unity-architect.md`, `agents/gameplay-programmer.md`, `agents/code-reviewer.md`.  
+Use `agents/unity-architect.md`, `agents/gameplay-programmer.md`, `agents/unity-setup.md`, `agents/code-reviewer.md`, `agents/tester.md`.  
 Step 1: Act as Unity Architect. Design this feature: [description]  
 Step 2: Act as Gameplay Programmer. Implement the design from Step 1.  
-Step 3: Act as Code Reviewer. Review the code from Step 2.
+Step 3: Act as Unity Setup. Define the required Unity setup from Step 2.  
+Step 4: Act as Code Reviewer. Review the code from Step 2.  
+Step 5: Act as Tester. Define tests and validation for the feature.
 
 ---
 
@@ -174,6 +225,8 @@ Step 3: Act as Code Reviewer. Review the code from Step 2.
 | Mobile-critical system | Performance Reviewer + Game Feel Reviewer |
 | Core gameplay mechanic | Architect + Gameplay Programmer + Game Feel Reviewer |
 | Rule-driven environment or simulation | Architect + Gameplay Programmer + Code Reviewer |
+| Scene-heavy feature or prefab wiring | Gameplay Programmer + Unity Setup + Code Reviewer |
+| Regression-sensitive feature | Gameplay Programmer + Tester + Code Reviewer |
 | Legacy code cleanup | Code Reviewer + Architect |
 
 ---
@@ -186,6 +239,8 @@ Load only what you need per session:
 
 - For design sessions: `AGENTS.md` + `agents/unity-architect.md` + relevant skills
 - For implementation: `AGENTS.md` + `agents/gameplay-programmer.md` + relevant skills
+- For Unity setup: `AGENTS.md` + `agents/unity-setup.md` + relevant rules/skills
+- For testing: `AGENTS.md` + `agents/tester.md` + relevant rules/skills
 - For review: `AGENTS.md` + `agents/code-reviewer.md`
 - For full pipeline: load agents one at a time per step
 
