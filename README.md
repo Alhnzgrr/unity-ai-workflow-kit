@@ -279,6 +279,16 @@ Step-by-step development flows:
 
 ## Quick Start
 
+### Install via Unity Package Manager
+
+Add the Git URL below in **Window > Package Manager > Add package from git URL...**
+
+```text
+https://github.com/Alhnzgrr/unity-ai-workflow-kit.git?path=/package
+```
+
+Unity requires a `package.json`, so the UPM-installable package lives under the `package/` folder.
+
 1. Load `AGENTS.md` into your AI context.
 2. Pick the relevant agent from `agents/`.
 3. Load only the skills relevant to the current task.
