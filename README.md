@@ -10,19 +10,17 @@ Build Unity projects with AI without losing architectural control.
 
 ## What Is This?
 
-**Unity AI Workflow Kit** is a practical workflow system for Unity developers using AI coding tools such as Codex, Claude Code, Cursor, GitHub Copilot, or similar assistants.
+**Unity AI Workflow Kit** is a source repository for installing a project-local AI workflow system into Unity projects.
 
-It provides:
+It is not a Unity Package Manager package.
 
-- agent roles
-- reusable skills
-- templates
-- workflows
-- Unity-specific guardrail hooks
+The repository is the source of truth. A Unity project receives an installed copy under:
 
-The goal is not blind code generation.
+```text
+Assets/unity-ai-workflow-kit/
+```
 
-The goal is structured AI-assisted Unity development.
+AI tools can then use that installed kit through thin adapters for Codex, Claude Code, Cursor, or similar tools.
 
 ---
 
@@ -30,322 +28,214 @@ The goal is structured AI-assisted Unity development.
 
 AI tools can generate code quickly.
 
-Without structure, that code often becomes:
+Without workflow constraints, that code often becomes:
 
 - bloated MonoBehaviours
 - inconsistent architecture
 - weak performance patterns
 - hard-to-maintain systems
-- unclear boundaries between runtime, editor, and data
+- unclear runtime/editor boundaries
+- missing review and validation evidence
 
-This kit helps you use AI without losing control of your Unity project.
-
----
-
-## Philosophy
-
-Fast when needed.
-Clean by default.
-Production-minded when it matters.
-
-This kit does not encourage messy prototypes.
-
-Instead:
-
-- keep early implementations simple
-- avoid unnecessary abstraction
-- maintain clean structure from the start
-- write code that can evolve into production
-
-> Do not overengineer early features, but never write code you would be ashamed to ship.
+This kit uses roles, rules, templates, gates, hooks, and runtime artifacts to make AI-assisted Unity development more deliberate.
 
 ---
 
-## Who Is This For?
+## Model
 
-- solo Unity developers
-- indie teams
-- mobile and hybrid-casual developers
-- developers using AI tools in their workflow
-- teams building rule-driven Unity environments, simulations, and tooling
+Source of truth:
+
+```text
+unity-ai-workflow-kit/
+```
+
+Installed Unity project artifact:
+
+```text
+UnityProject/Assets/unity-ai-workflow-kit/
+```
+
+Installed AI tool adapter:
+
+```text
+.codex/
+.claude/
+.cursor/
+```
+
+The source repo contains reusable content and installers. The Unity project contains project-specific runtime artifacts such as tasks, handoffs, reviews, validations, and logs.
 
 ---
 
-## What's Inside?
+## Repository Layout
 
 ```text
 unity-ai-workflow-kit/
   AGENTS.md
+  README.md
+
+  kit/
+    AGENTS.md
+    agents/
+    commands/
+    hooks/
+    rules/
+    skills/
+    templates/
+    workflows/
+    runtime-template/
+
+  adapters/
+    codex/
+    claude/
+    cursor/
+
+  scripts/
+    install-unity-project.ps1
+    install-codex-adapter.ps1
+    install-claude-adapter.ps1
+    install-cursor-adapter.ps1
+    validate-install.ps1
+
+  docs/
+  dist/
+```
+
+### kit
+
+Tool-agnostic workflow content.
+
+This is what gets installed into a Unity project as `Assets/unity-ai-workflow-kit`.
+
+### adapters
+
+Thin AI-tool-specific integration files.
+
+Adapters should teach the AI tool how to find and use the installed kit. They should not duplicate the whole kit.
+
+### scripts
+
+Install and validation automation.
+
+### dist
+
+Reserved for generated output.
+
+### docs
+
+Architecture and installation notes.
+
+---
+
+## Install Into A Unity Project
+
+Run from this repository:
+
+```powershell
+.\scripts\install-unity-project.ps1 -ProjectPath "C:\Path\To\UnityProject"
+```
+
+This creates or updates:
+
+```text
+UnityProject/Assets/unity-ai-workflow-kit/
+```
+
+Validate the install:
+
+```powershell
+.\scripts\validate-install.ps1 -ProjectPath "C:\Path\To\UnityProject"
+```
+
+---
+
+## Install Codex Adapter
+
+Run:
+
+```powershell
+.\scripts\install-codex-adapter.ps1
+```
+
+This creates or updates:
+
+```text
+%USERPROFILE%\.codex\skills\unity-ai-workflow-kit\
+```
+
+## Install Claude Or Cursor Adapter
+
+Run:
+
+```powershell
+.\scripts\install-claude-adapter.ps1 -ProjectPath "C:\Path\To\UnityProject"
+.\scripts\install-cursor-adapter.ps1 -ProjectPath "C:\Path\To\UnityProject"
+```
+
+---
+
+## Installed Kit Contents
+
+After installation, the Unity project receives:
+
+```text
+Assets/unity-ai-workflow-kit/
+  AGENTS.md
   agents/
   commands/
   hooks/
-  runtime/
   rules/
   skills/
   templates/
   workflows/
+  runtime/
 ```
 
-### Agents
-
-Role-based AI instructions:
-
-- Unity Architect
-- Gameplay Programmer
-- Code Reviewer
-- Performance Reviewer
-- Game Feel Reviewer
-
-### Skills
-
-Skills are organized by responsibility:
-
-```text
-skills/
-  unity-core/
-  unity-architecture/
-  training/
-  design/
-  learned/
-```
-
-#### unity-core
-
-Reusable Unity implementation knowledge:
-
-- object pooling
-- mobile development
-- scriptable objects
-- serialization safety
-- input system
-- assembly definitions
-- editor/runtime separation
-
-#### unity-architecture
-
-Project structure and environment/system design:
-
-- unity clean architecture
-- state machine
-- dependency injection
-- environment-view separation
-- simulation loop
-
-#### training
-
-Reasoning and evaluation skills for rule-driven environments:
-
-- state analysis
-- action validation
-- reward analysis
-- termination check
-- failure diagnosis
-- episode review
-
-#### design
-
-Interaction and product-facing design support:
-
-- game feel
-- hybrid casual
-
-#### learned
-
-The `skills/learned/` folder is reserved for project-specific patterns discovered over time.
-
-Use it for:
-
-- repeated project-specific conventions
-- environment-specific pitfalls
-- stable patterns that do not belong in general Unity skills
-
-Do not use it for:
-
-- generic Unity guidance
-- generic AI reasoning guidance
-- one-off notes or temporary experiments
-
-Only add a learned skill when the pattern is:
-
-- repeated
-- high-signal
-- specific to this project or workflow
-- useful enough to prevent the same mistake from happening again
-
-### Hooks
-
-The `hooks/` folder contains repository guardrails for high-cost Unity mistakes.
-
-Current hook set:
-
-- `block-serialized-unity-edit`
-- `guard-editor-runtime`
-- `check-core-boundary`
-- `warn-serialized-rename`
-- `check-input-boundary`
-
-These hooks are intended to protect:
-
-- serialized Unity files
-- editor/runtime separation
-- Core and Environment layer boundaries
-- input architecture discipline
-- serialization migration safety
-
-### Rules
-
-The `rules/` folder contains non-negotiable engineering standards for opinionated Unity AI workflows.
-
-Current rule set:
-
-- `architecture`
-- `dependency-injection`
-- `async`
-- `unity-runtime`
-- `serialization`
-- `performance`
-- `workflow-orchestration`
-
-These rules are intended to enforce:
-
-- explicit architecture boundaries
-- selected DI container discipline
-- UniTask-only async
-- no scene-search fallback setup
-- serialization safety
-- performance-aware implementation
-- phase-based workflow discipline
-
-### Commands
-
-The `commands/` folder contains reusable operation prompts for common AI workflows.
-
-Current command set:
-
-- `architect`
-- `plan-workflow`
-- `review-code`
-- `validate`
-- `learn`
-- `orchestrate`
-- `build-feature`
-- `catch-up`
-
-These commands are intended to help AI assistants:
-
-- design before coding
-- break large work into small execution steps
-- review code with consistent quality gates
-- validate milestone readiness
-- extract repeated project-specific patterns
-- coordinate multi-phase feature workflows
-- resume partially completed tasks cleanly
-
-### Templates
-
-Structure your ideas before coding:
-
-- Game Design Document (GDD)
-- Technical Design Document (TDD)
-
-The `templates/` folder also contains handoff templates for agent-to-agent workflow:
-
-- architecture handoff
-- implementation handoff
-- setup handoff
-- test handoff
-- review handoff
-- validation report
-
-### Runtime
-
-The `runtime/` folder is reserved for workflow artifacts produced during multi-phase work:
-
-- `tasks/`
-- `handoffs/`
-- `reviews/`
-- `validations/`
-- `logs/`
-
-This makes the kit ready for orchestration-oriented workflows instead of one-shot prompting only.
-
-### Workflows
-
-Step-by-step development flows:
-
-- feature development
+Start by loading `Assets/unity-ai-workflow-kit/AGENTS.md` into your AI tool context.
 
 ---
 
-## Quick Start
+## Runtime Artifacts
 
-1. Load `AGENTS.md` into your AI context.
-2. Pick the relevant agent from `agents/`.
-3. Load only the skills relevant to the current task.
-4. Use templates and workflows to define the work clearly.
-5. Keep hook guardrails in mind when editing Unity projects.
+Runtime artifacts belong to the Unity project, not this source repository.
 
-### Example Prompt
+Use this naming pattern:
 
 ```text
-Use the rules in AGENTS.md.
-
-Act as Unity Architect.
-
-Design the system for this feature:
-
-Player drags a ball, aims it with a trajectory line, and releases it to hit a target.
+Assets/unity-ai-workflow-kit/runtime/tasks/YYYY-MM-DD-feature-name.task.md
+Assets/unity-ai-workflow-kit/runtime/handoffs/YYYY-MM-DD-feature-name.architecture.md
+Assets/unity-ai-workflow-kit/runtime/reviews/YYYY-MM-DD-feature-name.code-review.md
+Assets/unity-ai-workflow-kit/runtime/validations/YYYY-MM-DD-feature-name.validation.md
 ```
 
 ---
 
-## Recommended Unity Structure
+## Decision Gates
 
-For gameplay-heavy projects:
+Use these checks to avoid skipping required workflow phases:
 
-```text
-Assets/
-  _Project/
-    Scripts/
-      Core/
-      Environment/
-      Views/
-      Data/
-      Composition/
-    Tests/
-```
-
-For rule-driven environments or simulations, prefer:
-
-- `Core`: state, actions, rules, reward logic, termination logic
-- `Environment`: reset, validation, step flow, transition systems
-- `Views`: MonoBehaviours, UI, input adapters, debug visualization
-- `Data`: ScriptableObjects, configs, scenarios
-- `Composition`: runtime wiring and setup
-
----
-
-## Game Feel Matters
-
-A feature is not complete just because it works.
-
-Always consider:
-
-- responsiveness
-- feedback clarity
-- valid vs invalid action feedback
-- state readability
-- replay/debug readability
-- sound and haptics where appropriate
+| Trigger | Required gate |
+|---|---|
+| New or unclear feature | Unity Architect |
+| Scene, prefab, ScriptableObject, or inspector wiring | Unity Setup |
+| Serialized field, prefab, scene, or asset change | Serialization rule |
+| MonoBehaviour lifecycle or scene-facing code | Unity runtime rule |
+| Dependency wiring or service composition | Dependency injection rule |
+| Async, timer, delay, cancellation, or sequencing | Async rule |
+| Update loop, pooling, allocation, draw call, or mobile risk | Performance Reviewer |
+| Input behavior, feedback, animation, sound, haptics, or clarity | Game Feel Reviewer |
+| Rule-driven environment or simulation | State/action/reward/termination skills |
+| Medium or large task | Runtime artifacts and validation report |
 
 ---
 
 ## What This Is Not
 
 - not a Unity plugin
+- not a Unity Package Manager package
 - not a full game framework
-- not a one-click generator
-- not a replacement for real Unity knowledge
+- not a one-click game generator
+- not a replacement for Unity engineering judgment
 
 ---
 

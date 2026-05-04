@@ -1,0 +1,13 @@
+---
+description: Route Unity AI work through Unity AI Workflow Kit.
+globs:
+  - "**/*.cs"
+  - "Assets/**/*.unity"
+  - "Assets/**/*.prefab"
+  - "Assets/**/*.asset"
+alwaysApply: false
+---
+
+Use `Assets/unity-ai-workflow-kit/AGENTS.md` as the primary workflow entrypoint.
+
+Select the smallest relevant set of agent, rule, and skill files for the task. Use runtime artifacts for non-trivial features, reviews, and validations.
