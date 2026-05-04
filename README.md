@@ -8,19 +8,76 @@ Build Unity projects with AI without losing architectural control.
 
 ---
 
+## Quick Start
+
+Clone this repository:
+
+```powershell
+git clone https://github.com/Alhnzgrr/unity-ai-workflow-kit.git
+cd unity-ai-workflow-kit
+```
+
+Install the kit into your Unity project:
+
+```powershell
+.\scripts\install-unity-project.ps1 -ProjectPath "C:\Path\To\YourUnityProject"
+```
+
+Validate the install:
+
+```powershell
+.\scripts\validate-install.ps1 -ProjectPath "C:\Path\To\YourUnityProject"
+```
+
+Then install the adapter for your AI tool.
+
+Codex:
+
+```powershell
+.\scripts\install-codex-adapter.ps1
+```
+
+Claude Code:
+
+```powershell
+.\scripts\install-claude-adapter.ps1 -ProjectPath "C:\Path\To\YourUnityProject"
+```
+
+Cursor:
+
+```powershell
+.\scripts\install-cursor-adapter.ps1 -ProjectPath "C:\Path\To\YourUnityProject"
+```
+
+Start your AI session with:
+
+```text
+Use Assets/unity-ai-workflow-kit/AGENTS.md as the primary workflow guide.
+
+For this task, load only the required agent, rule, and skill files. Do not load the entire kit at once.
+
+Task:
+[describe the Unity task]
+```
+
+---
+
 ## What Is This?
 
 **Unity AI Workflow Kit** is a source repository for installing a project-local AI workflow system into Unity projects.
 
-It is not a Unity Package Manager package.
+It gives AI tools a structured way to work through:
 
-The repository is the source of truth. A Unity project receives an installed copy under:
+- agent roles
+- workflow commands
+- engineering rules
+- reusable skills
+- handoff templates
+- review and validation gates
+- project-local runtime artifacts
+- optional adapters for Codex, Claude Code, and Cursor
 
-```text
-Assets/unity-ai-workflow-kit/
-```
-
-AI tools can then use that installed kit through thin adapters for Codex, Claude Code, Cursor, or similar tools.
+This is not a Unity Package Manager package. Install it with the scripts in this repository.
 
 ---
 
@@ -41,21 +98,21 @@ This kit uses roles, rules, templates, gates, hooks, and runtime artifacts to ma
 
 ---
 
-## Model
+## How It Works
 
-Source of truth:
+The repository is the source of truth:
 
 ```text
 unity-ai-workflow-kit/
 ```
 
-Installed Unity project artifact:
+The installer copies the workflow kit into your Unity project:
 
 ```text
 UnityProject/Assets/unity-ai-workflow-kit/
 ```
 
-Installed AI tool adapter:
+AI tool adapters are installed separately:
 
 ```text
 .codex/
@@ -63,7 +120,62 @@ Installed AI tool adapter:
 .cursor/
 ```
 
-The source repo contains reusable content and installers. The Unity project contains project-specific runtime artifacts such as tasks, handoffs, reviews, validations, and logs.
+The source repository stores reusable kit content. Your Unity project stores project-specific tasks, handoffs, reviews, validations, and logs.
+
+---
+
+## Installed Kit Contents
+
+After installation, your Unity project receives:
+
+```text
+Assets/unity-ai-workflow-kit/
+  AGENTS.md
+  agents/
+  commands/
+  hooks/
+  rules/
+  skills/
+  templates/
+  workflows/
+  runtime/
+```
+
+Use `Assets/unity-ai-workflow-kit/AGENTS.md` as the entrypoint for AI work.
+
+---
+
+## Pick The Right Flow
+
+Use these gates to avoid skipping important workflow phases:
+
+| Trigger | Required gate |
+|---|---|
+| New or unclear feature | Unity Architect |
+| Scene, prefab, ScriptableObject, or inspector wiring | Unity Setup |
+| Serialized field, prefab, scene, or asset change | Serialization rule |
+| MonoBehaviour lifecycle or scene-facing code | Unity runtime rule |
+| Dependency wiring or service composition | Dependency injection rule |
+| Async, timer, delay, cancellation, or sequencing | Async rule |
+| Update loop, pooling, allocation, draw call, or mobile risk | Performance Reviewer |
+| Input behavior, feedback, animation, sound, haptics, or clarity | Game Feel Reviewer |
+| Rule-driven environment or simulation | State/action/reward/termination skills |
+| Medium or large task | Runtime artifacts and validation report |
+
+---
+
+## Runtime Artifacts
+
+Runtime artifacts belong to the Unity project, not this source repository.
+
+Use this naming pattern:
+
+```text
+Assets/unity-ai-workflow-kit/runtime/tasks/YYYY-MM-DD-feature-name.task.md
+Assets/unity-ai-workflow-kit/runtime/handoffs/YYYY-MM-DD-feature-name.architecture.md
+Assets/unity-ai-workflow-kit/runtime/reviews/YYYY-MM-DD-feature-name.code-review.md
+Assets/unity-ai-workflow-kit/runtime/validations/YYYY-MM-DD-feature-name.validation.md
+```
 
 ---
 
@@ -101,131 +213,15 @@ unity-ai-workflow-kit/
   dist/
 ```
 
-### kit
+`kit/` is tool-agnostic workflow content.
 
-Tool-agnostic workflow content.
+`adapters/` contains thin AI-tool-specific integration files.
 
-This is what gets installed into a Unity project as `Assets/unity-ai-workflow-kit`.
+`scripts/` contains install and validation automation.
 
-### adapters
+`dist/` is reserved for generated output.
 
-Thin AI-tool-specific integration files.
-
-Adapters should teach the AI tool how to find and use the installed kit. They should not duplicate the whole kit.
-
-### scripts
-
-Install and validation automation.
-
-### dist
-
-Reserved for generated output.
-
-### docs
-
-Architecture and installation notes.
-
----
-
-## Install Into A Unity Project
-
-Run from this repository:
-
-```powershell
-.\scripts\install-unity-project.ps1 -ProjectPath "C:\Path\To\UnityProject"
-```
-
-This creates or updates:
-
-```text
-UnityProject/Assets/unity-ai-workflow-kit/
-```
-
-Validate the install:
-
-```powershell
-.\scripts\validate-install.ps1 -ProjectPath "C:\Path\To\UnityProject"
-```
-
----
-
-## Install Codex Adapter
-
-Run:
-
-```powershell
-.\scripts\install-codex-adapter.ps1
-```
-
-This creates or updates:
-
-```text
-%USERPROFILE%\.codex\skills\unity-ai-workflow-kit\
-```
-
-## Install Claude Or Cursor Adapter
-
-Run:
-
-```powershell
-.\scripts\install-claude-adapter.ps1 -ProjectPath "C:\Path\To\UnityProject"
-.\scripts\install-cursor-adapter.ps1 -ProjectPath "C:\Path\To\UnityProject"
-```
-
----
-
-## Installed Kit Contents
-
-After installation, the Unity project receives:
-
-```text
-Assets/unity-ai-workflow-kit/
-  AGENTS.md
-  agents/
-  commands/
-  hooks/
-  rules/
-  skills/
-  templates/
-  workflows/
-  runtime/
-```
-
-Start by loading `Assets/unity-ai-workflow-kit/AGENTS.md` into your AI tool context.
-
----
-
-## Runtime Artifacts
-
-Runtime artifacts belong to the Unity project, not this source repository.
-
-Use this naming pattern:
-
-```text
-Assets/unity-ai-workflow-kit/runtime/tasks/YYYY-MM-DD-feature-name.task.md
-Assets/unity-ai-workflow-kit/runtime/handoffs/YYYY-MM-DD-feature-name.architecture.md
-Assets/unity-ai-workflow-kit/runtime/reviews/YYYY-MM-DD-feature-name.code-review.md
-Assets/unity-ai-workflow-kit/runtime/validations/YYYY-MM-DD-feature-name.validation.md
-```
-
----
-
-## Decision Gates
-
-Use these checks to avoid skipping required workflow phases:
-
-| Trigger | Required gate |
-|---|---|
-| New or unclear feature | Unity Architect |
-| Scene, prefab, ScriptableObject, or inspector wiring | Unity Setup |
-| Serialized field, prefab, scene, or asset change | Serialization rule |
-| MonoBehaviour lifecycle or scene-facing code | Unity runtime rule |
-| Dependency wiring or service composition | Dependency injection rule |
-| Async, timer, delay, cancellation, or sequencing | Async rule |
-| Update loop, pooling, allocation, draw call, or mobile risk | Performance Reviewer |
-| Input behavior, feedback, animation, sound, haptics, or clarity | Game Feel Reviewer |
-| Rule-driven environment or simulation | State/action/reward/termination skills |
-| Medium or large task | Runtime artifacts and validation report |
+`docs/` contains architecture and installation notes.
 
 ---
 
