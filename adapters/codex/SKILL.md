@@ -14,6 +14,14 @@ Use this adapter when working in a Unity project that has `Assets/unity-ai-workf
 3. Load only the relevant rules and skills.
 4. Use runtime artifacts for medium or large tasks.
 
+## Session Loading
+
+Do not reload the same kit file repeatedly in one session.
+
+- Reuse already loaded agent, rule, and skill files when the task is a follow-up.
+- Re-read a file only when the task scope changes, a new role/rule/skill is needed, or the user says the kit changed.
+- For small follow-up tasks, continue from the current context without re-reading kit files.
+
 ## Routing
 
 - New feature or unclear design: use `agents/unity-architect.md`.

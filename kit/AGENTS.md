@@ -267,6 +267,18 @@ Do not load all agents and all skills at once.
 
 This reduces response quality.
 
+### Session Loading Policy
+
+At the start of a session, load `AGENTS.md` once.
+
+For each task:
+
+- Reuse agent, rule, and skill files already loaded earlier in the same session.
+- Re-read a kit file only when the task needs a different role, rule, or skill.
+- Re-read a kit file if the user says the kit changed or if the file may have changed.
+- For small follow-up tasks, do not reload kit files unless the task scope changes.
+- If a file has already been read in the same session, summarize from the existing context instead of reading it again.
+
 ---
 
 ## Command Reference
