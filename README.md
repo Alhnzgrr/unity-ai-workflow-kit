@@ -130,6 +130,15 @@ section is the same idea applied to one project.
 
 ---
 
+## Related
+
+[unity-claude-kit](https://github.com/Alhnzgrr/unity-claude-kit) is the
+Claude-native version, packaged as a Claude Code plugin: two commands to install,
+nothing copied into the Unity project, and hooks that read the project's own
+editor version, render pipeline and input backend before deciding what to
+enforce. This repository is the portable one — the same engineering rules as
+Markdown, with adapters for Claude, Codex and Cursor.
+
 ## What this is not
 
 Not a Unity Package Manager package, not a plugin, not a game framework, and not
