@@ -1,49 +1,49 @@
 # Hooks
 
-This folder contains repository guardrails for Unity-specific risks.
+Guardrails for the Unity mistakes that cost the most to find late: corrupted
+serialized files, editor code leaking into a player build, and architecture
+boundaries eroding one shortcut at a time.
 
-The goal of these hooks is to catch high-cost mistakes early, especially around:
+Each guardrail ships twice — `.ps1` for Windows and `.sh` for macOS and Linux —
+with identical behaviour. `install-claude-adapter.ps1` installs the PowerShell
+set into `.claude/hooks/` and wires it in `.claude/settings.json`. The bash
+versions need `jq`; the PowerShell versions have no dependencies beyond
+Windows PowerShell 5.1.
 
-- serialized Unity file corruption
-- editor/runtime leakage
-- core architecture boundary violations
+## Blocking
 
-## Phase 1 Hooks
+| Hook | Refuses |
+| --- | --- |
+| `block-serialized-unity-edit` | Text edits to `.unity`, `.prefab`, and `.asset` outside `Scripts/`, `Editor/` and `Plugins/`. Serialized references break silently under text editing; the Editor is the only safe writer. |
+| `guard-editor-runtime` | `UnityEditor` in runtime code with no `#if UNITY_EDITOR`. The Editor assembly does not exist in a player build, so this compiles until someone makes a build. |
+| `check-core-boundary` | `UnityEngine`, `MonoBehaviour`, `UnityEditor`, `InputAction` or `PlayerControls` inside `Core/` or `Environment/`. A Core layer earns its keep by being testable without play mode, and one `using` ends that. |
+| `check-input-boundary` | The legacy `Input` API anywhere, and Input System types inside `Core/`. |
 
-- `block-serialized-unity-edit.sh`
-  Blocks direct text editing of serialized Unity scene, prefab, and selected asset files.
+## Warning
 
-- `guard-editor-runtime.sh`
-  Blocks `UnityEditor` usage in runtime code when it is not properly isolated.
+| Hook | Reports |
+| --- | --- |
+| `check-input-boundary` | Action maps enabled but never disabled, and callbacks subscribed but never removed. Leaks rather than breakage, so they are said out loud rather than refused. |
+| `warn-serialized-rename` | A `[SerializeField]` name that disappears from an edit without `[FormerlySerializedAs]` taking its place. Unity keys serialized data by name, so the old value is dropped and the field returns as the type default — nothing errors, and the bug shows up later as a zero. |
 
-- `check-core-boundary.sh`
-  Protects `Core` and `Environment` layers from inappropriate Unity-facing dependencies.
+## Contract
 
-## Phase 2 Hooks
-
-- `warn-serialized-rename.sh`
-  Warns when serialized fields appear to be renamed without migration support.
-
-- `check-input-boundary.sh`
-  Protects the project from input-layer leakage into `Core` and `Environment`, and warns about unsafe input lifecycle patterns.
-
-## Input Format
-
-These scripts are written to accept JSON on stdin, similar to tool hook payloads used by agent runtimes.
-
-Expected useful fields include:
+Each hook reads a JSON tool payload on stdin and uses:
 
 - `tool_input.file_path`
-- `tool_input.new_string`
-- `tool_input.content`
+- `tool_input.new_string` / `tool_input.content`
+- `tool_input.old_string` (rename detection only)
 
-## Exit Codes
+Exit codes: `0` allows the edit, `2` refuses it and returns the message on
+stderr to the model. Malformed or empty input exits `0` — a guardrail that
+cannot parse its input should get out of the way rather than block all work.
 
-- `0`: allow / no issue
-- `2`: blocking violation
+Comments and string literals are stripped before matching, so a rule mentioned
+in prose does not trip its own check.
 
-## Notes
+## Limits
 
-- Current hooks are intentionally conservative.
-- Some rules may need path adjustments once the final project folder layout is fixed.
-- These hooks are guardrails, not perfect static analyzers.
+These are guardrails, not static analysis. They match on paths and text, so a
+project whose folders are not named `Core/` or `Environment/` needs the path
+patterns adjusted. They are deliberately conservative: a false block is a
+visible annoyance, while a false pass is invisible.
